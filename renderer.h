@@ -129,7 +129,6 @@ Mat4 invert4x4(Mat4 a) {
 #include "sokol_app.h"
 #include "sokol_gfx.h"
 #include "sokol_glue.h"
-#include "dbgui/dbgui.h"
 
 #include "shaders.glsl.h"
 
