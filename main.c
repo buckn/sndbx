@@ -43,7 +43,7 @@ void event(const sapp_event *ev) {
 sapp_desc sokol_main(int argc, char* argv[]) {
     (void)argc; (void)argv;
     return (sapp_desc){
-        .sample_count = 8,
+        .sample_count = 32,
         .high_dpi = true,
         .init_cb = init,
         .frame_cb = frame,

@@ -182,6 +182,13 @@ void render_init(void) {
                 [ATTR_vs_position].format = SG_VERTEXFORMAT_FLOAT3,
             }
         },
+        .colors[0].blend = (sg_blend_state) {
+            .enabled = true,
+            .src_factor_rgb = SG_BLENDFACTOR_ONE, 
+            .dst_factor_rgb = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA, 
+            .src_factor_alpha = SG_BLENDFACTOR_ONE, 
+            .dst_factor_alpha = SG_BLENDFACTOR_ONE_MINUS_SRC_ALPHA,
+        },
         .label = "quad-pipeline"
     });
 
@@ -264,7 +271,7 @@ void draw_rect() {
     /* upload fragment uniforms */
     fragment_uniforms_t fs_params = {
         .color = _rcx_wip_rect.color,
-        .radius = 0.5f,
+        .radius = 0.4f,
     };
     sg_apply_uniforms(SG_SHADERSTAGE_FS,
                       SLOT_fragment_uniforms,
