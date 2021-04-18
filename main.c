@@ -36,6 +36,7 @@ void event(const sapp_event *ev) {
         Vec2 mp = mouse_pos_world(ev->mouse_x, ev->mouse_y);
         game.player_rotation = atan2f(mp.y, mp.x);
         break;
+    default: ;
     };
 }
 
@@ -48,7 +49,8 @@ sapp_desc sokol_main(int argc, char* argv[]) {
         .frame_cb = frame,
         .cleanup_cb = cleanup,
         .event_cb = event,
-        .width = 800,
-        .height = 600,
+        .width = 1920,
+        .height = 1080,
         .window_title = "Quad (sokol-app)",
     };
+}

@@ -148,7 +148,6 @@ void render_init(void) {
     sg_setup(&(sg_desc){
         .context = sapp_sgcontext()
     });
-    __dbgui_setup(sapp_sample_count());
 
     /* a vertex buffer */
     float vertices[] = {
@@ -267,7 +266,6 @@ void draw_rect() {
 }
 
 void draw_end(void) {
-    __dbgui_draw();
     sg_end_pass();
     sg_commit();
 }
