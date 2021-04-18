@@ -5,23 +5,24 @@
 @vs vs
 
 in vec4 position;
-out vec4 color;
 
 uniform vertex_uniforms {
     mat4 model_matrix;
-    vec4 color0;
 };
 
 void main() {
     gl_Position = model_matrix * position;
-    color = color0;
 }
 @end
 
 /* quad fragment shader */
 @fs fs
-in vec4 color;
 out vec4 frag_color;
+
+uniform fragment_uniforms {
+    vec4 color;
+    float radius;
+};
 
 void main() {
     frag_color = color;

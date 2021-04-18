@@ -253,13 +253,23 @@ void draw_rect() {
     model = mul4x4(model, rotate_z_4x4(_rcx_wip_rect.rot));
     model = mul4x4(model, translate4x4(_rcx_wip_rect.pivot));
     model = mul4x4(model, scale4x4(_rcx_wip_rect.scale));
+    /* upload vertex uniforms */
     vertex_uniforms_t vs_params = {
         .model_matrix = model,
-        .color0 = _rcx_wip_rect.color,
     };
     sg_apply_uniforms(SG_SHADERSTAGE_VS,
                       SLOT_vertex_uniforms,
                       &SG_RANGE(vs_params));
+
+    /* upload fragment uniforms */
+    fragment_uniforms_t fs_params = {
+        .color = _rcx_wip_rect.color,
+        .radius = 0.5f,
+    };
+    sg_apply_uniforms(SG_SHADERSTAGE_FS,
+                      SLOT_fragment_uniforms,
+                      &SG_RANGE(fs_params));
+
     sg_draw(0, 6, 1);
 
     _rcx_wip_rect = (_rcx_Rect) {0};
