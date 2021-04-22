@@ -1,8 +1,15 @@
 #include "renderer.h"
+#include "mat.h"
 
 static struct {
-    float player_rotation;
-} game;
+    /* ... */
+
+    /* input */
+    bool keys_down[SAPP_MAX_KEYCODES];
+
+    /* player */
+    Vec2 pos, vel;
+} CliState;
 
 void init(void) {
     /* I mean this is what it is by default but
@@ -13,13 +20,24 @@ void init(void) {
 }
 
 void frame(void) {
-    draw_start();
+    frame_start();
 
-    draw_rect_start();
-    draw_rect_scale(1.0f, 0.6f);
-    draw_rect_pivot(0.2f, 0.0f);
-    draw_rect_rot(game.player_rotation);
-    draw_rect();
+    //player
+    draw_start();
+    draw_scale(1.0f, 1.0f);
+    draw_pivot(0.2f, 0.0f);
+    draw_rot(game.player_rotation);
+    draw_rad(0.1f);
+    draw();
+    
+    //static rect
+    draw_start();
+    draw_scale(1.0f, 1.0f);
+    draw_pivot(0.2f, 0.0f);
+    draw_rot(game.player_rotation);
+    draw_rad(0.1f);
+    draw_color(128, 128, 128, 128)
+    draw();
 
     draw_end();
 }
@@ -30,6 +48,16 @@ void cleanup(void) {
 
 void event(const sapp_event *ev) {
     switch (ev->type) {
+    case (SAPP_EVENTTYPE_KEY_DOWN):;
+        state.keys_down[ev->key_code] = true;
+        #ifndef NDEBUG
+        if (ev->key_code == SAPP_KEYCODE_ESCAPE)
+            sapp_request_quit();
+        #endif
+        break;
+    case SAPP_EVENTTYPE_KEY_UP:;
+        state.keys_down[ev->key_code] = false;
+        break;
     case SAPP_EVENTTYPE_MOUSE_UP:;
     case SAPP_EVENTTYPE_MOUSE_DOWN:;
     case SAPP_EVENTTYPE_MOUSE_MOVE:;

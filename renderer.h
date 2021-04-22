@@ -14,122 +14,21 @@
 #pragma warning(disable:4221)
 #endif
 
+/*
+    Std Library Headers
+*/
 #include <math.h>
 #include <assert.h>
 
-#define vec4(x, y, z, w) ((Vec4) {x,y,z,w})
-typedef union {
-    float nums[4];
-    struct { float x, y, z, w; };
-} Vec4;
+//Math Header
+#include "mat.h"
 
-#define vec2(x, y) ((Vec2) {x, y})
-typedef union {
-    float nums[2];
-    struct { float x, y; };
-} Vec2;
-
-typedef struct {
-    float nums[4][4];
-} Mat4;
-
-Mat4 scale4x4(Vec2 s) {
-    return (Mat4) {
-         s.x, 0.0f, 0.0f, 0.0f,
-        0.0f,  s.y, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-        0.0f, 0.0f, 0.0f, 1.0f
-    };
-}
-
-Mat4 rotate_z_4x4(float angle) {
-    return (Mat4) {
-        cosf(angle), -sinf(angle), 0.0f, 0.0f,
-        sinf(angle),  cosf(angle), 0.0f, 0.0f,
-               0.0f,        0.0f, 1.0f, 0.0f,
-               0.0f,        0.0f, 0.0f, 1.0f,
-    };
-}
-
-Mat4 translate4x4(Vec2 t) {
-    return (Mat4) {
-        1.0f, 0.0f, 0.0f, 0.0f,
-        0.0f, 1.0f, 0.0f, 0.0f,
-        0.0f, 0.0f, 1.0f, 0.0f,
-         t.x,  t.y, 0.0f, 1.0f,
-    };
-}
-
-Vec4 mul4x44(Mat4 m, Vec4 v) {
-    Vec4 res;
-    for(int x = 0; x < 4; ++x) {
-        float sum = 0;
-        for(int y = 0; y < 4; ++y)
-            sum += m.nums[y][x] * v.nums[y];
-
-        res.nums[x] = sum;
-    }
-    return res;
-}
-
-Mat4 mul4x4(Mat4 a, Mat4 b) {
-    Mat4 out = {0};
-    int k, r, c;
-    for (c = 0; c < 4; ++c)
-        for (r = 0; r < 4; ++r) {
-            out.nums[c][r] = 0.0f;
-            for (k = 0; k < 4; ++k)
-                out.nums[c][r] += a.nums[k][r] * b.nums[c][k];
-        }
-    return out;
-}
-
-Mat4 invert4x4(Mat4 a) {
-    float s[6], c[6];
-    s[0] = a.nums[0][0]*a.nums[1][1] - a.nums[1][0]*a.nums[0][1];
-    s[1] = a.nums[0][0]*a.nums[1][2] - a.nums[1][0]*a.nums[0][2];
-    s[2] = a.nums[0][0]*a.nums[1][3] - a.nums[1][0]*a.nums[0][3];
-    s[3] = a.nums[0][1]*a.nums[1][2] - a.nums[1][1]*a.nums[0][2];
-    s[4] = a.nums[0][1]*a.nums[1][3] - a.nums[1][1]*a.nums[0][3];
-    s[5] = a.nums[0][2]*a.nums[1][3] - a.nums[1][2]*a.nums[0][3];
-
-    c[0] = a.nums[2][0]*a.nums[3][1] - a.nums[3][0]*a.nums[2][1];
-    c[1] = a.nums[2][0]*a.nums[3][2] - a.nums[3][0]*a.nums[2][2];
-    c[2] = a.nums[2][0]*a.nums[3][3] - a.nums[3][0]*a.nums[2][3];
-    c[3] = a.nums[2][1]*a.nums[3][2] - a.nums[3][1]*a.nums[2][2];
-    c[4] = a.nums[2][1]*a.nums[3][3] - a.nums[3][1]*a.nums[2][3];
-    c[5] = a.nums[2][2]*a.nums[3][3] - a.nums[3][2]*a.nums[2][3];
-    
-    /* Assumes it is invertible */
-    float idet = 1.0f/( s[0]*c[5]-s[1]*c[4]+s[2]*c[3]+s[3]*c[2]-s[4]*c[1]+s[5]*c[0] );
-    
-    Mat4 res;
-    res.nums[0][0] = ( a.nums[1][1] * c[5] - a.nums[1][2] * c[4] + a.nums[1][3] * c[3]) * idet;
-    res.nums[0][1] = (-a.nums[0][1] * c[5] + a.nums[0][2] * c[4] - a.nums[0][3] * c[3]) * idet;
-    res.nums[0][2] = ( a.nums[3][1] * s[5] - a.nums[3][2] * s[4] + a.nums[3][3] * s[3]) * idet;
-    res.nums[0][3] = (-a.nums[2][1] * s[5] + a.nums[2][2] * s[4] - a.nums[2][3] * s[3]) * idet;
-
-    res.nums[1][0] = (-a.nums[1][0] * c[5] + a.nums[1][2] * c[2] - a.nums[1][3] * c[1]) * idet;
-    res.nums[1][1] = ( a.nums[0][0] * c[5] - a.nums[0][2] * c[2] + a.nums[0][3] * c[1]) * idet;
-    res.nums[1][2] = (-a.nums[3][0] * s[5] + a.nums[3][2] * s[2] - a.nums[3][3] * s[1]) * idet;
-    res.nums[1][3] = ( a.nums[2][0] * s[5] - a.nums[2][2] * s[2] + a.nums[2][3] * s[1]) * idet;
-
-    res.nums[2][0] = ( a.nums[1][0] * c[4] - a.nums[1][1] * c[2] + a.nums[1][3] * c[0]) * idet;
-    res.nums[2][1] = (-a.nums[0][0] * c[4] + a.nums[0][1] * c[2] - a.nums[0][3] * c[0]) * idet;
-    res.nums[2][2] = ( a.nums[3][0] * s[4] - a.nums[3][1] * s[2] + a.nums[3][3] * s[0]) * idet;
-    res.nums[2][3] = (-a.nums[2][0] * s[4] + a.nums[2][1] * s[2] - a.nums[2][3] * s[0]) * idet;
-
-    res.nums[3][0] = (-a.nums[1][0] * c[3] + a.nums[1][1] * c[1] - a.nums[1][2] * c[0]) * idet;
-    res.nums[3][1] = ( a.nums[0][0] * c[3] - a.nums[0][1] * c[1] + a.nums[0][2] * c[0]) * idet;
-    res.nums[3][2] = (-a.nums[3][0] * s[3] + a.nums[3][1] * s[1] - a.nums[3][2] * s[0]) * idet;
-    res.nums[3][3] = ( a.nums[2][0] * s[3] - a.nums[2][1] * s[1] + a.nums[2][2] * s[0]) * idet;
-    return res;
-}
-
+/*
+    Sokol Headers
+*/
 #include "sokol_app.h"
 #include "sokol_gfx.h"
 #include "sokol_glue.h"
-
 #include "shaders.glsl.h"
 
 static struct {
@@ -211,7 +110,7 @@ Vec2 mouse_pos_world(float x, float y) {
     return vec2(mouse_world.x, mouse_world.y);
 }
 
-void draw_start(void) {
+void frame_start(void) {
     sg_begin_default_pass(&_rcx.pass_action, sapp_width(), sapp_height());
     sg_apply_pipeline(_rcx.pip);
     sg_apply_bindings(&_rcx.bind);
@@ -222,44 +121,52 @@ typedef struct {
     Vec2 pos, scale, pivot;
     float rot;
     Vec4 color;
+    float rad;
 } _rcx_Rect;
-static _rcx_Rect _rcx_wip_rect;
+static _rcx_Rect _rcx_wip;
 
-void draw_rect_start(void) {
-    _rcx_wip_rect.start = true;
-    _rcx_wip_rect.color.w = 1.0f;
-    _rcx_wip_rect.scale = vec2(1.0f, 1.0f);
+void draw_start(void) {
+    _rcx_wip.start = true;
+    _rcx_wip.color.w = 1.0f;
+    _rcx_wip.scale = vec2(1.0f, 1.0f);
 }
-void draw_rect_pos(float x, float y) {
-    _rcx_wip_rect.pos.x = x;
-    _rcx_wip_rect.pos.y = y;
+void draw_pos(float x, float y) {
+    _rcx_wip.pos.x = x;
+    _rcx_wip.pos.y = y;
 }
-void draw_rect_scale(float x, float y) {
-    _rcx_wip_rect.scale.x = x;
-    _rcx_wip_rect.scale.y = y;
+void draw_scale(float x, float y) {
+    _rcx_wip.scale.x = x;
+    _rcx_wip.scale.y = y;
 }
-void draw_rect_pivot(float x, float y) {
-    _rcx_wip_rect.pivot.x = x;
-    _rcx_wip_rect.pivot.y = y;
+void draw_pivot(float x, float y) {
+    _rcx_wip.pivot.x = x;
+    _rcx_wip.pivot.y = y;
 }
-void draw_rect_rot(float rot) {
-    _rcx_wip_rect.rot = rot;
+void draw_rot(float rot) {
+    _rcx_wip.rot = rot;
 }
-void draw_rect_color(float x, float y, float z, float w) {
-    _rcx_wip_rect.color.x = x;
-    _rcx_wip_rect.color.y = y;
-    _rcx_wip_rect.color.z = z;
-    _rcx_wip_rect.color.w = w;
+void draw_dir(Vec2 dir) {
+    _rcx_wip.rot = dir;
+}
+void draw_color(float r, float g, float b, float a) {
+    _rcx_wip.color.x = r;
+    _rcx_wip.color.y = g;
+    _rcx_wip.color.z = b;
+    _rcx_wip.color.w = a;
 }
 
-void draw_rect() {
-    assert(_rcx_wip_rect.start);
+void draw_rad(float rad_i) {
+    _rcx_wip.rad = rad_i;
+}
+
+void draw() {
+    assert(_rcx_wip.start);
 
     Mat4 model = _rcx.cam;
-    model = mul4x4(model, translate4x4(_rcx_wip_rect.pos));
-    model = mul4x4(model, rotate_z_4x4(_rcx_wip_rect.rot));
-    model = mul4x4(model, translate4x4(_rcx_wip_rect.pivot));
-    model = mul4x4(model, scale4x4(_rcx_wip_rect.scale));
+    model = mul4x4(model, translate4x4(_rcx_wip.pos));
+    model = mul4x4(model, rotate_z_4x4(_rcx_wip.rot));
+    model = mul4x4(model, translate4x4(_rcx_wip.pivot));
+    model = mul4x4(model, scale4x4(_rcx_wip.scale));
     /* upload vertex uniforms */
     vertex_uniforms_t vs_params = {
         .model_matrix = model,
@@ -270,8 +177,9 @@ void draw_rect() {
 
     /* upload fragment uniforms */
     fragment_uniforms_t fs_params = {
-        .color = _rcx_wip_rect.color,
-        .radius = 0.4f,
+        .color = _rcx_wip.color,
+        .radius = _rcx_wip.rad,
+        .scale = _rcx_wip.scale,
     };
     sg_apply_uniforms(SG_SHADERSTAGE_FS,
                       SLOT_fragment_uniforms,
@@ -279,11 +187,10 @@ void draw_rect() {
 
     sg_draw(0, 6, 1);
 
-    _rcx_wip_rect = (_rcx_Rect) {0};
+    _rcx_wip = (_rcx_Rect) {0};
 }
 
 void draw_end(void) {
     sg_end_pass();
     sg_commit();
 }
-
