@@ -7,3 +7,4 @@ client/img/*.png
 client.glsl.h
 *.rdbg
 *.cap
+shaders.glsl.h

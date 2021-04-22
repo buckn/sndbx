@@ -1,40 +1,49 @@
-//------------------------------------------------------------------------------
-//  Shader code for texcube-sapp sample.
-//
-//  NOTE: This source file also uses the '#pragma sokol' form of the
-//  custom tags.
-//------------------------------------------------------------------------------
-#pragma sokol @ctype mat4 hmm_mat4
+#pragma sokol @ctype mat4 Mat4
+#pragma sokol @ctype vec4 Vec4
+#pragma sokol @ctype vec2 Vec2
 
-#pragma sokol @vs vs
-uniform vs_params {
-    mat4 mvp;
+/* quad vertex shader */
+@vs vs
+
+in vec4 position;
+out vec2 square_pos;
+
+uniform vertex_uniforms {
+    mat4 model_matrix;
 };
 
-in vec4 pos;
-in vec4 color0;
-in vec2 texcoord0;
-
-out vec4 color;
-out vec2 uv;
-
 void main() {
-    gl_Position = mvp * pos;
-    color = color0;
-    uv = texcoord0 * 5.0;
+    gl_Position = model_matrix * position;
+    square_pos = position.xy;
 }
-#pragma sokol @end
+@end
 
-#pragma sokol @fs fs
-uniform sampler2D tex;
-
-in vec4 color;
-in vec2 uv;
+/* quad fragment shader */
+@fs fs
+in vec2 square_pos;
 out vec4 frag_color;
 
-void main() {
-    frag_color = texture(tex, uv) * color;
-}
-#pragma sokol @end
+uniform fragment_uniforms {
+    vec4 color;
+    vec2 scale;
+    float radius;
+};
 
-#pragma sokol @program texcube vs fs
+void main() {
+    frag_color = color;
+
+    // border thickness
+    float thc = 0.01f * (scale.x + scale.y) / 2.0;
+
+    vec2 cir_center = vec2(sign(square_pos.x), sign(square_pos.y)) * (0.5 - radius);
+    float alpha = 1.0;
+    if (abs(square_pos.x) > (0.5f - radius) && abs(square_pos.y) > (0.5f - radius))
+        alpha = smoothstep(radius, radius - thc, length(square_pos - cir_center));
+    alpha = min(alpha, smoothstep(0.5f, 0.5f - thc, abs(square_pos.x)));
+    alpha = min(alpha, smoothstep(0.5f, 0.5f - thc, abs(square_pos.y)));
+    frag_color.w = alpha;
+}
+@end
+
+/* quad shader program */
+@program quad vs fs
