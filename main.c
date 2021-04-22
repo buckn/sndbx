@@ -45,9 +45,9 @@ void frame(void) {
     draw_start();
     draw_scale(1.0f, 1.0f);
     draw_pivot(0.2f, 0.0f);
-    draw_dir(cli.dir);
+    draw_dir(0.0f);
     draw_rad(0.1f);
-    draw_color(128, 128, 128, 128);
+    draw_color(128, 128, 128, 255);
     draw();
 
     /*
