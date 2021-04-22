@@ -15,15 +15,6 @@
 #endif
 
 /*
-    Std Library Headers
-*/
-#include <math.h>
-#include <assert.h>
-
-//Math Header
-#include "mat.h"
-
-/*
     Sokol Headers
 */
 #include "sokol_app.h"
@@ -146,7 +137,7 @@ void draw_rot(float rot) {
     _rcx_wip.rot = rot;
 }
 void draw_dir(Vec2 dir) {
-    _rcx_wip.rot = dir;
+    _rcx_wip.rot = rot_vec2(dir);
 }
 void draw_color(float r, float g, float b, float a) {
     _rcx_wip.color.x = r;

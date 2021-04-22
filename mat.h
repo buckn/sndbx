@@ -1,13 +1,6 @@
 /*
-    Std Library Headers
-*/
-#include <math.h>
-#include <assert.h>
-
-/*
 	Vec2 Struct
 */
-#define vec2(x, y) ((Vec2) {x, y})
 typedef union {
     float nums[2];
     struct { float x, y; };
@@ -16,7 +9,6 @@ typedef union {
 /*
 	Vec4 Struct
 */
-#define vec4(x, y, z, w) ((Vec4) {x,y,z,w})
 typedef union {
     float nums[4];
     struct { float x, y, z, w; };
@@ -40,6 +32,12 @@ Vec4 mul4x44(Mat4 m, Vec4 v) {
         res.nums[x] = sum;
     }
     return res;
+}
+
+Vec4 vec4(float x, float y, float z, float w) {
+	return (Vec4) {
+		x, y, z, w
+	};
 }
 
 /* Vec2 Functions */

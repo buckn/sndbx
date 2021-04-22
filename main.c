@@ -1,5 +1,15 @@
-#include "renderer.h"
+/*
+    Include standard library headers
+*/
+#include <math.h>
+#include <assert.h>
+
+/*
+    Include rend.h and mat.h
+*/
 #include "mat.h"
+#include "ent.h"
+#include "ren.h"
 
 static struct {
     /* ... */
@@ -8,36 +18,41 @@ static struct {
     bool keys_down[SAPP_MAX_KEYCODES];
 
     /* player */
-    Vec2 pos, vel;
-} CliState;
+    Vec2 pos, vel, dir;
+} cli;
 
 void init(void) {
-    /* I mean this is what it is by default but
-       never hurts to be explicit */
-    game.player_rotation = 0.0f;
-
     render_init();
 }
 
 void frame(void) {
     frame_start();
 
+    /*
+        Frame drawing begins here
+    */
+
     //player
     draw_start();
     draw_scale(1.0f, 1.0f);
     draw_pivot(0.2f, 0.0f);
-    draw_rot(game.player_rotation);
+    draw_dir(cli.dir);
     draw_rad(0.1f);
+    draw_color(0, 0, 0, 255);
     draw();
     
     //static rect
     draw_start();
     draw_scale(1.0f, 1.0f);
     draw_pivot(0.2f, 0.0f);
-    draw_rot(game.player_rotation);
+    draw_dir(cli.dir);
     draw_rad(0.1f);
-    draw_color(128, 128, 128, 128)
+    draw_color(128, 128, 128, 128);
     draw();
+
+    /*
+        Frame drawing ends here
+    */
 
     draw_end();
 }
@@ -49,20 +64,21 @@ void cleanup(void) {
 void event(const sapp_event *ev) {
     switch (ev->type) {
     case (SAPP_EVENTTYPE_KEY_DOWN):;
-        state.keys_down[ev->key_code] = true;
+        cli.keys_down[ev->key_code] = true;
         #ifndef NDEBUG
         if (ev->key_code == SAPP_KEYCODE_ESCAPE)
             sapp_request_quit();
         #endif
         break;
     case SAPP_EVENTTYPE_KEY_UP:;
-        state.keys_down[ev->key_code] = false;
+        cli.keys_down[ev->key_code] = false;
         break;
     case SAPP_EVENTTYPE_MOUSE_UP:;
     case SAPP_EVENTTYPE_MOUSE_DOWN:;
     case SAPP_EVENTTYPE_MOUSE_MOVE:;
         Vec2 mp = mouse_pos_world(ev->mouse_x, ev->mouse_y);
-        game.player_rotation = atan2f(mp.y, mp.x);
+        cli.dir.x = mp.x;
+        cli.dir.y = mp.y;
         break;
     default: ;
     };
